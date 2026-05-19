@@ -1,0 +1,4 @@
+{
+  "YOLO": "models/yolo26s.pt",
+  "FasterRCNN": "models/fastercnn.pth"
+}

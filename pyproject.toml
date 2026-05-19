@@ -1,0 +1,15 @@
+[project]
+name = "facedetection"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.136.1",
+    "numpy>=2.4.4",
+    "onnxruntime>=1.25.1",
+    "opencv-python>=4.13.0.92",
+    "torch>=2.11.0",
+    "torchvision>=0.26.0",
+    "ultralytics>=8.4.46",
+]
