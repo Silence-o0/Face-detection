@@ -34,7 +34,7 @@ class BaseModel(ABC):
     def __init__(self, model_path: str):
         self.model_path = model_path
         self.model = None
-        self.original_shape = None  # Will be set in preprocess
+        self.original_shape = None
         self.load_model()
 
     @abstractmethod

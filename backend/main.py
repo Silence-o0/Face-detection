@@ -17,8 +17,6 @@ model_manager: Optional[ModelManager] = None
 inference_pool: Optional[InferencePool] = None
 current_model_name: Optional[str] = None
 
-frame_times = []
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -79,7 +77,6 @@ async def set_model(model_name: str):
 @app.post("/frame")
 async def receive_frame(file: UploadFile = File(...)):
     """Receives frame for inference"""
-    global frame_times
 
     if not current_model_name:
         return {"status": "no_model_selected"}
@@ -87,7 +84,6 @@ async def receive_frame(file: UploadFile = File(...)):
     frame_data = await file.read()
 
     inference_pool.add_frame(frame_data)
-    frame_times.append(time.time())
 
     return {"status": "queued"}
 
@@ -101,17 +97,7 @@ async def get_result():
 @app.get("/metrics")
 async def get_metrics():
     """Returns system performance metrics"""
-    global frame_times
-
-    current_time = time.time()
-
-    frame_times = [t for t in frame_times if current_time - t < 1.0]
-    fps = len(frame_times)
-
-    avg_inference_time = inference_pool.get_average_inference_time()
-
     return {
         "model": current_model_name or "None",
-        "fps": fps,
-        "inference_time": avg_inference_time
+        "inference_time": inference_pool.get_last_inference_time()
     }

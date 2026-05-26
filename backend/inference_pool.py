@@ -36,7 +36,6 @@ class InferenceWorker(threading.Thread):
 
         self.model: Optional[BaseModel] = None
         self.running = True
-        self.inference_times = []
 
     def set_model(self, model: BaseModel):
         """Sets the model for the worker."""
@@ -68,24 +67,12 @@ class InferenceWorker(threading.Thread):
 
                 self.result_storage["last_inference_time"] = inference_time
 
-                self.inference_times.append(inference_time)
-
-                if len(self.inference_times) > 30:
-                    self.inference_times.pop(0)
-
             except Exception as e:
                 print(f"  Worker {self.worker_id} error: {e}")
 
     def stop(self):
         """Stops the worker."""
         self.running = False
-
-    def get_average_inference_time(self) -> float:
-        """Returns average inference time."""
-        if not self.inference_times:
-            return 0.0
-
-        return sum(self.inference_times) / len(self.inference_times)
 
 
 class InferencePool:
@@ -129,19 +116,9 @@ class InferencePool:
         """Returns the latest bounding boxes."""
         return self.result_storage.get("latest_result", [])
 
-    def get_average_inference_time(self) -> float:
-        """Returns average inference time across all workers."""
-        times = [
-            w.get_average_inference_time()
-            for w in self.workers
-        ]
-
-        valid_times = [t for t in times if t > 0]
-
-        if not valid_times:
-            return 0.0
-
-        return sum(valid_times) / len(valid_times)
+    def get_last_inference_time(self) -> float:
+        """Returns the most recent inference time."""
+        return self.result_storage.get("last_inference_time", 0.0)
 
     def stop(self):
         """Stops all workers."""
